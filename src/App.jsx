@@ -1,39 +1,39 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
 import SurveyForm from './components/SurveyForm'
 import AdminDashboard from './components/AdminDashboard'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
-  const [view, setView] = useState('survey') // 'survey' or 'admin'
-
   return (
-    <main className="antialiased font-inter">
-      {view === 'survey' ? (
-        <>
-          <SurveyForm />
-          {/* Simple toggle for demo purposes */}
-          <button
-            onClick={() => setView('admin')}
-            className="fixed bottom-4 right-4 text-[10px] text-slate-500/50 hover:text-slate-400 uppercase tracking-widest font-bold px-3 py-1 bg-white/5 rounded-full border border-white/5 hover:bg-white/10 transition-all z-50"
+    <BrowserRouter>
+      <main className="antialiased font-inter">
+        <Routes>
+          <Route path="/" element={<SurveyForm />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Routes>
+
+        {/* Helper Navigation for development */}
+        <div className="fixed bottom-4 right-4 flex gap-2 z-50">
+          <Link
+            to="/"
+            className="text-[10px] text-slate-500 hover:text-slate-300 uppercase tracking-widest font-bold px-3 py-1 bg-slate-800/50 hover:bg-slate-800 rounded-full border border-slate-700 transition-all shadow-lg backdrop-blur-sm"
           >
-            Go to Admin
-          </button>
-        </>
-      ) : (
-        <>
-          <AdminDashboard />
-          <button
-            onClick={() => setView('survey')}
-            className="fixed bottom-4 right-4 text-[10px] text-slate-500 hover:text-slate-300 uppercase tracking-widest font-bold px-3 py-1 bg-slate-800 rounded-full border border-slate-700 transition-all z-50 shadow-lg"
+            Survey
+          </Link>
+          <Link
+            to="/admin"
+            className="text-[10px] text-slate-500 hover:text-slate-300 uppercase tracking-widest font-bold px-3 py-1 bg-slate-800/50 hover:bg-slate-800 rounded-full border border-slate-700 transition-all shadow-lg backdrop-blur-sm"
           >
-            Back to Survey
-          </button>
-        </>
-      )}
-      <Analytics />
-      <SpeedInsights />
-    </main>
+            Admin
+          </Link>
+        </div>
+
+        <Analytics />
+        <SpeedInsights />
+      </main>
+    </BrowserRouter>
   )
 }
 
