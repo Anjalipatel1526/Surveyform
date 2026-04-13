@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import SurveyForm from './components/SurveyForm'
 import AdminDashboard from './components/AdminDashboard'
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
   const [view, setView] = useState('survey') // 'survey' or 'admin'
@@ -29,6 +30,7 @@ function App() {
           </button>
         </>
       )}
+      <Analytics />
     </main>
   )
 }
