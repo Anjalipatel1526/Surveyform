@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import emailjs from '@emailjs/browser';
 import {
     User, Mail, Calendar, Phone, Link, Briefcase,
     Building2, GraduationCap, BookOpen, Star, BarChart3,
@@ -132,11 +133,30 @@ const SurveyForm = () => {
     const handleSubmit = async () => {
         setStatus('submitting');
         try {
-            const { error } = await supabase
+            // 1. Save to Supabase
+            const { error: dbError } = await supabase
                 .from('survey_responses')
                 .insert([formData]);
 
-            if (error) throw error;
+            if (dbError) throw dbError;
+
+            // 2. Send Professional Email Confirmation
+            if (import.meta.env.VITE_EMAILJS_PUBLIC_KEY && import.meta.env.VITE_EMAILJS_PUBLIC_KEY !== 'public_key') {
+                const templateParams = {
+                    user_name: formData.name,
+                    user_email: formData.email,
+                    from_name: 'Anjali Patel',
+                    reply_to: 'anjalipatel@unaitech.com',
+                    message: `Dear ${formData.name},\n\nYour survey response has been successfully received.\n\nThank you for your valuable contribution and time.\n\nBest regards,\nAnjali Patel`
+                };
+
+                await emailjs.send(
+                    import.meta.env.VITE_EMAILJS_SERVICE_ID,
+                    import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+                    templateParams,
+                    import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+                );
+            }
 
             localStorage.setItem('survey_submitted', 'true');
             setStatus('success');
