@@ -177,12 +177,12 @@ const SurveyForm = () => {
                                             <button
                                                 key={opt}
                                                 onClick={() => { setFormData(p => ({ ...p, [currentQuestion.id]: opt })); setTimeout(nextStep, 300); }}
-                                                className={`flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 border ${formData[currentQuestion.id] === opt
+                                                className={`flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl transition-all duration-300 border ${formData[currentQuestion.id] === opt
                                                     ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-105 z-10'
                                                     : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.02]'
                                                     }`}
                                             >
-                                                <span className="text-3xl font-black mb-1">{i + 1}</span>
+                                                <span className="text-2xl font-black mb-0.5">{i + 1}</span>
                                                 <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">
                                                     {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'} Year
                                                 </span>
