@@ -1,327 +1,292 @@
-import React, { useState } from 'react';
-import heroImage from '../assets/hero.png';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    User, Mail, Calendar, Phone, Link, Briefcase,
+    Building2, GraduationCap, BookOpen, Star, BarChart3,
+    Heart, ThumbsUp, Lightbulb, MessageSquare, ChevronRight, ChevronLeft
+} from "lucide-react";
+
+// Update this with your actual Google Apps Script URL
+const GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+
+const questions = [
+    { id: 'name', label: 'Full Name', type: 'text', required: true, icon: User },
+    { id: 'email', label: 'Email Address', type: 'email', required: true, icon: Mail },
+    { id: 'dob', label: 'Date of Birth', type: 'date', required: true, icon: Calendar },
+    { id: 'phone', label: 'Phone Number', type: 'tel', required: true, icon: Phone },
+    { id: 'linkedin', label: 'LinkedIn Profile', type: 'url', required: true, icon: Link },
+    { id: 'interest', label: 'Field of Interest', type: 'radio', options: ['Full Stack Developer', 'AIML', 'AIDS', 'Testing', 'UI/UX Design'], required: true, icon: Briefcase },
+    { id: 'college', label: 'College / University', type: 'text', required: true, icon: Building2 },
+    { id: 'department', label: 'Department / Branch', type: 'text', required: true, icon: GraduationCap },
+    { id: 'year', label: 'Year of Study', type: 'select', options: ['1st Year', '2nd Year', '3rd Year', '4th Year'], required: true, icon: BookOpen },
+    { id: 'experience', label: 'Workshop Experience', type: 'range', min: 1, max: 5, required: true, icon: Star },
+    { id: 'relevance', label: 'Relevance to Curriculum', type: 'range', min: 1, max: 5, required: true, icon: BarChart3 },
+    { id: 'satisfaction', label: 'Content Satisfaction', type: 'range', min: 1, max: 5, required: true, icon: Heart },
+    { id: 'recommend', label: 'Recommend this workshop?', type: 'radio', options: ['Yes', 'No', 'Maybe'], required: true, icon: ThumbsUp },
+    { id: 'valuable_learned', label: 'Most valuable takeaway?', type: 'textarea', required: false, icon: Lightbulb },
+    { id: 'improvement_suggestions', label: 'Any suggestions?', type: 'textarea', required: false, icon: MessageSquare },
+];
 
 const SurveyForm = () => {
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        dob: '',
-        phone: '',
-        college: '',
-        department: '',
-        year: '',
-        linkedin: '',
-        portfolio: '',
-        experience: '5',
-        relevance: '5',
-        satisfaction: '5',
-        recommend: 'Yes',
-        valuable_learned: '',
-        improvement_suggestions: ''
+        name: '', email: '', dob: '', phone: '', college: '', department: '', year: '', linkedin: '', interest: '',
+        experience: 3, relevance: 3, satisfaction: 3, recommend: 'Yes', valuable_learned: '', improvement_suggestions: ''
     });
+    const [status, setStatus] = useState('idle');
+    const [step, setStep] = useState(0);
+    const [direction, setDirection] = useState(1);
 
-    const [status, setStatus] = useState('idle'); // idle, submitting, success, error
+    const handleChange = (e) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setStatus('submitting');
-
-        // Replace with your actual Google Apps Script Web App URL
-        const GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-
-        try {
-            if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                alert('Please configure the Google Apps Script URL in SurveyForm.jsx');
-                setStatus('idle');
-                return;
-            }
-
-            const response = await fetch(GAS_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Important for GAS
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
-
-            setStatus('success');
-            alert('Thank you! Your survey response has been recorded.');
-            setFormData({
-                name: '', email: '', dob: '', phone: '', college: '', department: '', year: '',
-                linkedin: '', portfolio: '',
-                experience: '5', relevance: '5', satisfaction: '5', recommend: 'Yes',
-                valuable_learned: '', improvement_suggestions: ''
-            });
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            setStatus('error');
+    const nextStep = () => {
+        const q = questions[step];
+        if (q.required && !formData[q.id]) {
+            return;
+        }
+        if (step < questions.length - 1) {
+            setDirection(1);
+            setStep(s => s + 1);
+        } else {
+            handleSubmit();
         }
     };
 
-    return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
-            <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="relative h-48 bg-indigo-600 overflow-hidden">
-                    <img
-                        src={heroImage}
-                        alt="AI Workshop"
-                        className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay"
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-8 text-center">
-                        <h1 className="text-4xl font-extrabold tracking-tight drop-shadow-lg">AI Workshop Student Survey</h1>
-                        <p className="mt-2 text-indigo-50 font-medium italic drop-shadow-md">Engineering Student Information & Feedback</p>
+    const prevStep = () => {
+        if (step > 0) {
+            setDirection(-1);
+            setStep(s => s - 1);
+        }
+    };
+
+    const handleSubmit = async () => {
+        setStatus('submitting');
+        try {
+            await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
+            setStatus('success');
+            setTimeout(() => { setStatus('idle'); setStep(0); }, 3000);
+        } catch { setStatus('error'); }
+    };
+
+    if (status === 'success') {
+        return (
+            <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 p-4">
+                <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="bg-white rounded-3xl shadow-2xl shadow-blue-900/10 p-10 text-center border border-slate-100 max-w-sm w-full"
+                >
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
                     </div>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-2">Success!</h2>
+                    <p className="text-slate-500">Your response has been saved securely.</p>
+                </motion.div>
+            </div>
+        );
+    }
+
+    const currentQuestion = questions[step];
+    const Icon = currentQuestion.icon;
+
+    const variants = {
+        enter: (d) => ({ x: d > 0 ? 50 : -50, opacity: 0, scale: 0.95 }),
+        center: { x: 0, opacity: 1, scale: 1 },
+        exit: (d) => ({ x: d < 0 ? 50 : -50, opacity: 0, scale: 0.95 })
+    };
+
+    return (
+        <div className="min-h-screen w-full bg-[#f8fafc] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden font-inter">
+            {/* Subtle background patterns */}
+            <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500 rounded-full blur-[120px]" />
+                <div className="w-full h-full" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+            </div>
+
+            <div className="relative z-10 w-full max-w-md flex flex-col items-center">
+                {/* Brand Header */}
+                <motion.div
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="flex flex-col items-center mb-6 sm:mb-8"
+                >
+                    <div className="bg-white p-3 sm:p-4 rounded-3xl shadow-xl shadow-blue-500/10 mb-3 sm:mb-4 border border-slate-100 transition-all">
+                        <img src="/logo.ico" alt="Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain" />
+                    </div>
+                    <h1 className="text-[10px] sm:text-sm font-bold uppercase tracking-widest text-slate-400 text-center">Engineering Student Onboarding</h1>
+                </motion.div>
+
+                {/* Progress Bar */}
+                <div className="w-full h-1.5 bg-slate-200 rounded-full mb-10 overflow-hidden flex">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${((step + 1) / questions.length) * 100}%` }}
+                        className="h-full bg-blue-600 rounded-full"
+                    />
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                    {/* Section: Basic Information */}
-                    <section>
-                        <h2 className="text-xl font-semibold text-slate-900 border-b pb-2 mb-6">Basic Information</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                                <input
-                                    required
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="John Doe"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
-                                <input
-                                    required
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="john@example.com"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Date of Birth</label>
-                                <input
-                                    required
-                                    type="date"
-                                    name="dob"
-                                    value={formData.dob}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
-                                <input
-                                    required
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="+91 12345 67890"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn Profile (Optional)</label>
-                                <input
-                                    type="url"
-                                    name="linkedin"
-                                    value={formData.linkedin}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="https://linkedin.com/in/..."
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Portfolio Link (Optional)</label>
-                                <input
-                                    type="url"
-                                    name="portfolio"
-                                    value={formData.portfolio}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="https://portfolio.com"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">College Name</label>
-                                <input
-                                    required
-                                    type="text"
-                                    name="college"
-                                    value={formData.college}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="Engineering College"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
-                                <input
-                                    required
-                                    type="text"
-                                    name="department"
-                                    value={formData.department}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="Computer Science"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Year of Study</label>
-                                <select
-                                    required
-                                    name="year"
-                                    value={formData.year}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                >
-                                    <option value="">Select Year</option>
-                                    <option value="1st Year">1st Year</option>
-                                    <option value="2nd Year">2nd Year</option>
-                                    <option value="3rd Year">3rd Year</option>
-                                    <option value="4th Year">4th Year</option>
-                                </select>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Section: Survey Questions */}
-                    <section>
-                        <h2 className="text-xl font-semibold text-slate-900 border-b pb-2 mb-6">AI Workshop Feedback</h2>
-
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">How would you rate your overall experience with the AI workshop? (1-5)</label>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="5"
-                                    step="1"
-                                    name="experience"
-                                    value={formData.experience}
-                                    onChange={handleChange}
-                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                                <div className="flex justify-between text-xs text-slate-500 mt-1 px-1">
-                                    <span>1 (Poor)</span>
-                                    <span>2</span>
-                                    <span>3</span>
-                                    <span>4</span>
-                                    <span>5 (Excellent)</span>
+                {/* Main Card */}
+                <div className="w-full relative min-h-[380px] sm:min-h-[420px]">
+                    <AnimatePresence mode="wait" custom={direction}>
+                        <motion.div
+                            key={step}
+                            custom={direction}
+                            variants={variants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                            className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl shadow-slate-200/60 p-6 sm:p-8 border border-slate-100 flex flex-col h-full ring-1 ring-slate-900/[0.02]"
+                        >
+                            {/* Card Header */}
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600">
+                                    <Icon size={20} />
                                 </div>
+                                <span className="text-xs font-semibold text-slate-400">
+                                    Question {step + 1} / {questions.length}
+                                </span>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">How relevant was the workshop content to your engineering curriculum? (1-5)</label>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="5"
-                                    step="1"
-                                    name="relevance"
-                                    value={formData.relevance}
-                                    onChange={handleChange}
-                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                                <div className="flex justify-between text-xs text-slate-500 mt-1 px-1">
-                                    <span>1 (Irrelevant)</span>
-                                    <span>5 (Very Relevant)</span>
-                                </div>
-                            </div>
+                            <h2 className="text-xl font-bold text-slate-900 leading-tight mb-8">
+                                {currentQuestion.label}
+                            </h2>
 
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">Rate your satisfaction with the hands-on sessions & instructors (1-5)</label>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="5"
-                                    step="1"
-                                    name="satisfaction"
-                                    value={formData.satisfaction}
-                                    onChange={handleChange}
-                                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-3">Would you recommend this workshop to your peers?</label>
-                                <div className="flex space-x-6">
-                                    {['Yes', 'No'].map(option => (
-                                        <label key={option} className="flex items-center cursor-pointer">
+                            {/* Input Sections */}
+                            <div className="flex-grow">
+                                {currentQuestion.type === 'radio' ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {currentQuestion.options.map(opt => (
+                                            <button
+                                                key={opt}
+                                                onClick={() => { setFormData(p => ({ ...p, [currentQuestion.id]: opt })); setTimeout(nextStep, 300); }}
+                                                className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-semibold transition-all duration-300 border ${formData[currentQuestion.id] === opt
+                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-[1.02]'
+                                                    : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.01]'
+                                                    }`}
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : currentQuestion.id === 'year' ? (
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                        {currentQuestion.options.map((opt, i) => (
+                                            <button
+                                                key={opt}
+                                                onClick={() => { setFormData(p => ({ ...p, [currentQuestion.id]: opt })); setTimeout(nextStep, 300); }}
+                                                className={`flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-300 border ${formData[currentQuestion.id] === opt
+                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-105 z-10'
+                                                    : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.02]'
+                                                    }`}
+                                            >
+                                                <span className="text-3xl font-black mb-1">{i + 1}</span>
+                                                <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">
+                                                    {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'} Year
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : currentQuestion.id === 'dob' ? (
+                                    <div className="flex flex-col gap-4">
+                                        <div className="group relative">
+                                            <label className="block text-[10px] font-bold text-slate-400 mb-2 ml-1 uppercase tracking-wider">Date of Birth</label>
                                             <input
-                                                type="radio"
-                                                name="recommend"
-                                                value={option}
-                                                checked={formData.recommend === option}
-                                                onChange={handleChange}
-                                                className="w-4 h-4 text-indigo-600 bg-slate-100 border-slate-300 focus:ring-indigo-500"
+                                                type="text"
+                                                placeholder="DD / MM / YYYY"
+                                                value={formData.dob || ''}
+                                                onChange={(e) => {
+                                                    let val = e.target.value.replace(/\D/g, '');
+                                                    if (val.length > 8) val = val.slice(0, 8);
+
+                                                    let formatted = '';
+                                                    if (val.length > 0) {
+                                                        formatted = val.slice(0, 2);
+                                                        if (val.length > 2) {
+                                                            formatted += ' / ' + val.slice(2, 4);
+                                                            if (val.length > 4) {
+                                                                formatted += ' / ' + val.slice(4, 8);
+                                                            }
+                                                        }
+                                                    }
+                                                    setFormData(p => ({ ...p, dob: formatted }));
+                                                }}
+                                                className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none placeholder:text-slate-300 tracking-widest tabular-nums"
                                             />
-                                            <span className="ml-2 text-sm text-slate-700">{option}</span>
-                                        </label>
-                                    ))}
-                                </div>
+                                            <div className="absolute right-6 top-[3.25rem] text-slate-300">
+                                                <Calendar size={18} />
+                                            </div>
+                                        </div>
+                                        <div className="text-[10px] text-slate-400 font-medium text-center">
+                                            Please use the format Day / Month / Year
+                                        </div>
+                                    </div>
+                                ) : currentQuestion.type === 'range' ? (
+                                    <div className="pt-4 flex flex-col items-center">
+                                        <div className="text-5xl font-black text-blue-600 mb-6 tabular-nums">{formData[currentQuestion.id]}</div>
+                                        <input
+                                            type="range" min={currentQuestion.min} max={currentQuestion.max}
+                                            name={currentQuestion.id} value={formData[currentQuestion.id]}
+                                            onChange={handleChange}
+                                            className="w-full h-2 bg-slate-100 rounded-full appearance-none cursor-pointer accent-blue-600"
+                                        />
+                                        <div className="w-full flex justify-between mt-4 px-1 text-[10px] font-bold text-slate-400">
+                                            <span>MIN ({currentQuestion.min})</span>
+                                            <span>MAX ({currentQuestion.max})</span>
+                                        </div>
+                                    </div>
+                                ) : currentQuestion.type === 'textarea' ? (
+                                    <textarea
+                                        name={currentQuestion.id} value={formData[currentQuestion.id]}
+                                        onChange={handleChange} placeholder="Share your thoughts..."
+                                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none min-h-[120px] resize-none"
+                                    />
+                                ) : (
+                                    <input
+                                        type={currentQuestion.type} name={currentQuestion.id}
+                                        value={formData[currentQuestion.id]} onChange={handleChange}
+                                        placeholder="Type your answer here..."
+                                        onKeyDown={e => e.key === 'Enter' && nextStep()}
+                                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                )}
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">What was the most valuable thing you learned?</label>
-                                <textarea
-                                    name="valuable_learned"
-                                    value={formData.valuable_learned}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="Share your key takeaways..."
-                                ></textarea>
-                            </div>
+                            {/* Buttons Area */}
+                            <div className="mt-8 sm:mt-10 flex items-center justify-between gap-4">
+                                {step > 0 ? (
+                                    <button
+                                        onClick={prevStep}
+                                        className="flex items-center gap-2 px-5 sm:px-6 py-3 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
+                                    >
+                                        <ChevronLeft size={18} />
+                                        <span>Back</span>
+                                    </button>
+                                ) : <div />}
 
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Any suggestions for future workshops?</label>
-                                <textarea
-                                    name="improvement_suggestions"
-                                    value={formData.improvement_suggestions}
-                                    onChange={handleChange}
-                                    rows="3"
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
-                                    placeholder="How can we do better?"
-                                ></textarea>
+                                <button
+                                    onClick={nextStep}
+                                    disabled={status === 'submitting' || (currentQuestion.required && !formData[currentQuestion.id])}
+                                    className={`flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-sm font-bold shadow-xl transition-all duration-300 ${(currentQuestion.required && !formData[currentQuestion.id])
+                                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
+                                        : 'bg-blue-600 text-white shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 active:translate-y-0'
+                                        }`}
+                                >
+                                    <span>{status === 'submitting' ? 'Saving...' : step === questions.length - 1 ? 'Complete' : 'Continue'}</span>
+                                    {step < questions.length - 1 && <ChevronRight size={18} />}
+                                </button>
                             </div>
-                        </div>
-                    </section>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
 
-                    <button
-                        type="submit"
-                        disabled={status === 'submitting'}
-                        className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transform transition-all active:scale-95 ${status === 'submitting'
-                            ? 'bg-indigo-300 cursor-not-allowed'
-                            : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:shadow-indigo-500/30'
-                            }`}
-                    >
-                        {status === 'submitting' ? (
-                            <span className="flex items-center justify-center">
-                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                Submitting...
-                            </span>
-                        ) : 'Submit Survey Response'}
-                    </button>
-                </form>
+                {/* Footer Info */}
+                <p className="mt-12 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">
+                    Powered by Student Analytics Core • Survey v2.0
+                </p>
             </div>
-            <footer className="max-w-3xl mx-auto mt-8 text-center text-slate-400 text-sm">
-                &copy; 2026 AI Workshop | Designed for Engineering Excellence
-            </footer>
         </div>
     );
 };

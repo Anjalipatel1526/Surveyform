@@ -57,4 +57,7 @@ function doGet(e) {
 
 ### Google Sheet Headers
 Make sure your Google Sheet has the following headers in the first row (A1, B1, C1, etc.):
-`timestamp`, `name`, `email`, `dob`, `phone`, `college`, `department`, `year`, `linkedin`, `portfolio`, `experience`, `relevance`, `satisfaction`, `recommend`, `valuable_learned`, `improvement_suggestions`
+`timestamp`, `name`, `email`, `dob`, `phone`, `college`, `department`, `year`, `linkedin`, `interest`, `experience`, `relevance`, `satisfaction`, `recommend`, `valuable_learned`, `improvement_suggestions`
+
+> [!NOTE]
+> The `resume` field will receive the base64 data of the uploaded file. For a more robust solution, you can modify the GAS `doPost` to save the file to Google Drive and store the link instead.
