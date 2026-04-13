@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     User, Mail, Calendar, Phone, Link, Briefcase,
@@ -60,20 +60,60 @@ const SurveyForm = () => {
     const [status, setStatus] = useState('idle');
     const [step, setStep] = useState(0);
     const [direction, setDirection] = useState(1);
+    const [error, setError] = useState('');
 
-    const handleChange = (e) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+    useEffect(() => {
+        const isSubmitted = localStorage.getItem('survey_submitted');
+        if (isSubmitted === 'true') {
+            setStatus('success');
+        }
+    }, []);
+
+    const handleChange = (e) => {
+        setError('');
+        setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
+    };
 
     const nextStep = () => {
         const q = questions[step];
+        setError('');
+
+        // Basic requirement check
+        if (q.required && !formData[q.id]) {
+            setError('This field is required');
+            return;
+        }
+
+        // Specific Validations
+        if (q.id === 'email') {
+            const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+            if (!gmailRegex.test(formData.email)) {
+                setError('Please enter a valid @gmail.com address');
+                return;
+            }
+        }
+
+        if (q.id === 'phone') {
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(formData.phone)) {
+                setError('Please enter a valid 10-digit phone number');
+                return;
+            }
+        }
+
+        if (q.id === 'linkedin') {
+            if (!formData.linkedin.toLowerCase().includes('linkedin.com/')) {
+                setError('Please enter a valid LinkedIn profile URL');
+                return;
+            }
+        }
 
         // Validation for "Other" field in Question 15
         if (q.id === 'ai_tool_frequent' && formData.ai_tool_frequent === 'Other' && !formData.ai_tool_frequent_other) {
+            setError('Please specify the tool name');
             return;
         }
 
-        if (q.required && !formData[q.id]) {
-            return;
-        }
         if (step < questions.length - 1) {
             setDirection(1);
             setStep(s => s + 1);
@@ -98,8 +138,8 @@ const SurveyForm = () => {
 
             if (error) throw error;
 
+            localStorage.setItem('survey_submitted', 'true');
             setStatus('success');
-            setTimeout(() => { setStatus('idle'); setStep(0); }, 3000);
         } catch (error) {
             console.error('Submission error:', error);
             setStatus('error');
@@ -233,18 +273,22 @@ const SurveyForm = () => {
                                         )}
                                     </div>
                                 ) : currentQuestion.id === 'year' ? (
-                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                         {currentQuestion.options.map((opt, i) => (
                                             <button
                                                 key={opt}
-                                                onClick={() => { setFormData(p => ({ ...p, [currentQuestion.id]: opt })); setTimeout(nextStep, 300); }}
-                                                className={`flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl transition-all duration-300 border ${formData[currentQuestion.id] === opt
+                                                onClick={() => {
+                                                    setError('');
+                                                    setFormData(p => ({ ...p, [currentQuestion.id]: opt }));
+                                                    setTimeout(nextStep, 300);
+                                                }}
+                                                className={`flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl transition-all duration-300 border ${formData[currentQuestion.id] === opt
                                                     ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-105 z-10'
-                                                    : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.02]'
+                                                    : 'bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.02]'
                                                     }`}
                                             >
-                                                <span className="text-2xl font-black mb-0.5">{i + 1}</span>
-                                                <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">
+                                                <span className="text-xl font-black mb-0.5">{i + 1}</span>
+                                                <span className="text-[8px] font-bold uppercase tracking-widest opacity-80">
                                                     {i === 0 ? 'st' : i === 1 ? 'nd' : i === 2 ? 'rd' : 'th'} Year
                                                 </span>
                                             </button>
@@ -259,6 +303,7 @@ const SurveyForm = () => {
                                                 placeholder="DD / MM / YYYY"
                                                 value={formData.dob || ''}
                                                 onChange={(e) => {
+                                                    setError('');
                                                     let val = e.target.value.replace(/\D/g, '');
                                                     if (val.length > 8) val = val.slice(0, 8);
 
@@ -274,14 +319,11 @@ const SurveyForm = () => {
                                                     }
                                                     setFormData(p => ({ ...p, dob: formatted }));
                                                 }}
-                                                className="w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none placeholder:text-slate-300 tracking-widest tabular-nums"
+                                                className={`w-full bg-slate-50 border rounded-2xl px-6 py-4 text-sm font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none placeholder:text-slate-300 tracking-widest tabular-nums ${error ? 'border-red-500 bg-red-50/30' : 'border-transparent'}`}
                                             />
                                             <div className="absolute right-6 top-[3.25rem] text-slate-300">
                                                 <Calendar size={18} />
                                             </div>
-                                        </div>
-                                        <div className="text-[10px] text-slate-400 font-medium text-center">
-                                            Please use the format Day / Month / Year
                                         </div>
                                     </div>
                                 ) : currentQuestion.type === 'range' ? (
@@ -302,18 +344,34 @@ const SurveyForm = () => {
                                     <textarea
                                         name={currentQuestion.id} value={formData[currentQuestion.id]}
                                         onChange={handleChange} placeholder="Share your thoughts..."
-                                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none min-h-[120px] resize-none"
+                                        className={`w-full bg-slate-50 border rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none min-h-[120px] resize-none ${error ? 'border-red-500 bg-red-50/30' : 'border-transparent'}`}
                                     />
                                 ) : (
                                     <input
                                         type={currentQuestion.type} name={currentQuestion.id}
                                         value={formData[currentQuestion.id]} onChange={handleChange}
-                                        placeholder="Type your answer here..."
+                                        placeholder={currentQuestion.id === 'phone' ? "Enter 10-digit number" : "Type your answer here..."}
                                         onKeyDown={e => e.key === 'Enter' && nextStep()}
-                                        className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className={`w-full bg-slate-50 border rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none ${error ? 'border-red-500 bg-red-50/30' : 'border-transparent'}`}
                                     />
                                 )}
                             </div>
+
+                            {/* Error Message */}
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="mt-4"
+                                    >
+                                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest pl-1">
+                                            ⚠️ {error}
+                                        </p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
                             {/* Buttons Area */}
                             <div className="mt-12 sm:mt-16 flex items-center justify-between gap-4">

@@ -95,8 +95,8 @@ const AdminDashboard = () => {
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 ${activeTab === item.id
-                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
                                     }`}
                             >
                                 <item.icon size={18} />
@@ -182,6 +182,79 @@ const AdminDashboard = () => {
                                                 <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-bold">{count} responses</span>
                                             </div>
                                         ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Analytics Tab */}
+                    {activeTab === 'analytics' && stats && (
+                        <div className="space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-[2rem]">
+                                    <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">AI Familiarity</h4>
+                                    <div className="text-2xl font-bold text-blue-400">
+                                        {((responses.filter(r => r.ai_understanding === 'Yes').length / Math.max(responses.length, 1)) * 100).toFixed(0)}%
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1">understand AI basics</p>
+                                </div>
+                                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-[2rem]">
+                                    <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Prompt Awareness</h4>
+                                    <div className="text-2xl font-bold text-purple-400">
+                                        {((responses.filter(r => r.ai_prompt_engineering_awareness === 'Yes').length / Math.max(responses.length, 1)) * 100).toFixed(0)}%
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1">aware of prompt eng.</p>
+                                </div>
+                                <div className="bg-slate-900/40 border border-white/5 p-6 rounded-[2rem]">
+                                    <h4 className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Confidence Avg</h4>
+                                    <div className="text-2xl font-bold text-green-400">
+                                        {(responses.reduce((acc, r) => acc + parseInt(r.ai_confidence || 0), 0) / Math.max(responses.length, 1)).toFixed(1)}/5
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1">student confidence</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900/40 border border-white/5 p-8 rounded-[2.5rem]">
+                                <h3 className="font-bold mb-8 flex items-center gap-2 text-xl">
+                                    <BarChart3 size={20} className="text-blue-500" />
+                                    AI Readiness Analysis
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                    <div className="space-y-6">
+                                        <h4 className="text-sm font-bold text-slate-200 border-l-2 border-blue-600 pl-3">Career Impact Outlook</h4>
+                                        <div className="space-y-4">
+                                            {['Optimistic', 'Concerned', 'Neutral'].map(opinion => {
+                                                const count = responses.filter(r => r.ai_career_impact?.includes(opinion)).length;
+                                                const percentage = ((count / Math.max(responses.length, 1)) * 100).toFixed(0);
+                                                return (
+                                                    <div key={opinion} className="space-y-2">
+                                                        <div className="flex justify-between text-xs">
+                                                            <span className="text-slate-400">{opinion}</span>
+                                                            <span className="text-blue-400 font-bold">{percentage}%</span>
+                                                        </div>
+                                                        <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                                            <motion.div
+                                                                initial={{ width: 0 }}
+                                                                animate={{ width: `${percentage}%` }}
+                                                                className="h-full bg-blue-500 rounded-full"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <h4 className="text-sm font-bold text-slate-200 border-l-2 border-purple-600 pl-3">Top AI Tools Mentioned</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {Array.from(new Set(responses.flatMap(r => r.ai_tools_familiar?.split(',').map(s => s.trim())))).filter(Boolean).slice(0, 10).map(tool => (
+                                                <div key={tool} className="px-4 py-2 bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold rounded-2xl">
+                                                    {tool}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
