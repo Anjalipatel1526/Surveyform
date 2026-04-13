@@ -4,7 +4,8 @@ import {
     User, Mail, Calendar, Phone, Link, Briefcase,
     Building2, GraduationCap, BookOpen, Star, BarChart3,
     Heart, ThumbsUp, Lightbulb, MessageSquare, ChevronRight, ChevronLeft,
-    Globe, Cpu, LayoutGrid, Zap, Clock, Target, ShieldCheck, Sparkles
+    Globe, Cpu, LayoutGrid, Zap, Clock, Target, ShieldCheck, Sparkles,
+    Settings2, Scale, FileText, Award, Eye, Compass, Rocket
 } from "lucide-react";
 
 // Update this with your actual Google Apps Script URL
@@ -30,6 +31,16 @@ const questions = [
     { id: 'ai_purposes', label: 'For what purposes do you primarily use AI tools?', type: 'radio', options: ['Academic studies', 'Coding / Programming', 'Content creation', 'Design & Creativity', 'Research', 'Personal productivity', 'Entertainment'], required: true, icon: Target },
     { id: 'ai_reliance_area', label: 'Which area do you rely on AI the most?', type: 'radio', options: ['Learning concepts', 'Writing / Documentation', 'Problem solving', 'Coding assistance', 'Design & media generation'], required: true, icon: ShieldCheck },
     { id: 'ai_effectiveness', label: 'How effective do you find AI tools in solving your problems?', type: 'radio', options: ['Very Effective', 'Effective', 'Neutral', 'Ineffective', 'Very Ineffective'], required: true, icon: Sparkles },
+    { id: 'ai_convey_method', label: 'How do you usually convey your problems or questions to AI tools?', type: 'radio', options: ['Simple keywords', 'Complete sentences', 'Detailed prompts with context', 'Trial and error approach', 'Not sure how to ask properly'], required: true, icon: MessageSquare },
+    { id: 'ai_prompt_engineering_awareness', label: 'Are you aware of the concept of “Prompt Engineering”?', type: 'radio', options: ['Yes, and I use it', 'Aware but not confident', 'Heard of it', 'Not aware'], required: true, icon: Settings2 },
+    { id: 'ai_confidence', label: 'How confident are you in using AI tools effectively?', type: 'radio', options: ['Very Confident', 'Confident', 'Moderate', 'Low', 'Not Confident'], required: true, icon: Zap },
+    { id: 'ai_core_skill', label: 'Do you think AI should be taught as a core skill for students?', type: 'radio', options: ['Strongly Agree', 'Agree', 'Neutral', 'Disagree', 'Strongly Disagree'], required: true, icon: GraduationCap },
+    { id: 'ai_ethics_awareness', label: 'Are you aware of ethical concerns related to AI (data privacy, bias, misuse)?', type: 'radio', options: ['Very Aware', 'Somewhat Aware', 'Heard about it', 'Not Aware'], required: true, icon: Scale },
+    { id: 'ai_regulations', label: 'Do you believe AI usage should have guidelines or regulations in education?', type: 'radio', options: ['Yes', 'No', 'Not Sure'], required: true, icon: FileText },
+    { id: 'ai_previous_workshops', label: 'Have you attended any AI-related workshops or courses before?', type: 'radio', options: ['Yes', 'No'], required: true, icon: Award },
+    { id: 'ai_workshop_expectations', label: 'What do you expect from an AI workshop?', type: 'radio', options: ['Practical hands-on learning', 'Career guidance', 'Real-world project exposure', 'AI tools mastery', 'Certification'], required: true, icon: Eye },
+    { id: 'ai_interested_domains', label: 'Which AI domains are you most interested in learning?', type: 'radio', options: ['Generative AI', 'Machine Learning', 'AI for Coding', 'AI for Design & Media', 'AI for Business & Automation'], required: true, icon: Compass },
+    { id: 'ai_future_application', label: 'After attending an AI workshop, how likely are you to apply AI in your academics or career?', type: 'radio', options: ['Very Likely', 'Likely', 'Neutral', 'Unlikely', 'Very Unlikely'], required: true, icon: Rocket },
     { id: 'experience', label: 'Workshop Experience', type: 'range', min: 1, max: 5, required: true, icon: Star },
     { id: 'relevance', label: 'Relevance to Curriculum', type: 'range', min: 1, max: 5, required: true, icon: BarChart3 },
     { id: 'satisfaction', label: 'Content Satisfaction', type: 'range', min: 1, max: 5, required: true, icon: Heart },
@@ -43,6 +54,9 @@ const SurveyForm = () => {
         name: '', email: '', dob: '', phone: '', college: '', department: '', year: '', linkedin: '', interest: '',
         ai_understanding: '', ai_role: '', ai_career_impact: '', ai_usage: '', ai_tools_familiar: '', ai_tool_frequent: '',
         ai_tool_frequent_other: '', ai_usage_frequency: '', ai_purposes: '', ai_reliance_area: '', ai_effectiveness: '',
+        ai_convey_method: '', ai_prompt_engineering_awareness: '', ai_confidence: '', ai_core_skill: '',
+        ai_ethics_awareness: '', ai_regulations: '', ai_previous_workshops: '', ai_workshop_expectations: '',
+        ai_interested_domains: '', ai_future_application: '',
         experience: 3, relevance: 3, satisfaction: 3, recommend: 'Yes', valuable_learned: '', improvement_suggestions: ''
     });
     const [status, setStatus] = useState('idle');
@@ -88,7 +102,7 @@ const SurveyForm = () => {
 
     if (status === 'success') {
         return (
-            <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 p-4">
+            <div className="min-h-screen w-full flex items-center justify-center bg-[#0a0f1e] p-4">
                 <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -116,7 +130,7 @@ const SurveyForm = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-[#f8fafc] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden font-inter">
+        <div className="min-h-screen w-full bg-[#0a0f1e] flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden font-inter">
             {/* Subtle background patterns */}
             <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500 rounded-full blur-[120px]" />
@@ -138,11 +152,11 @@ const SurveyForm = () => {
                 </motion.div>
 
                 {/* Progress Bar */}
-                <div className="w-full h-1.5 bg-slate-200 rounded-full mb-10 overflow-hidden flex">
+                <div className="w-full h-1.5 bg-white/10 rounded-full mb-10 overflow-hidden flex">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${((step + 1) / questions.length) * 100}%` }}
-                        className="h-full bg-blue-600 rounded-full"
+                        className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] rounded-full"
                     />
                 </div>
 
@@ -157,7 +171,7 @@ const SurveyForm = () => {
                             animate="center"
                             exit="exit"
                             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                            className="bg-white rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl shadow-slate-200/60 p-6 sm:p-8 border border-slate-100 flex flex-col h-full ring-1 ring-slate-900/[0.02]"
+                            className="bg-white rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl shadow-slate-200/60 p-8 sm:p-12 border border-slate-100 flex flex-col ring-1 ring-slate-900/[0.02]"
                         >
                             {/* Card Header */}
                             <div className="flex items-center gap-3 mb-6">
@@ -296,13 +310,13 @@ const SurveyForm = () => {
                             </div>
 
                             {/* Buttons Area */}
-                            <div className="mt-8 sm:mt-10 flex items-center justify-between gap-4">
+                            <div className="mt-12 sm:mt-16 flex items-center justify-between gap-4">
                                 {step > 0 ? (
                                     <button
                                         onClick={prevStep}
-                                        className="flex items-center gap-2 px-5 sm:px-6 py-3 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
+                                        className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all duration-200"
                                     >
-                                        <ChevronLeft size={18} />
+                                        <ChevronLeft size={16} />
                                         <span>Back</span>
                                     </button>
                                 ) : <div />}
@@ -310,13 +324,13 @@ const SurveyForm = () => {
                                 <button
                                     onClick={nextStep}
                                     disabled={status === 'submitting' || (currentQuestion.required && !formData[currentQuestion.id])}
-                                    className={`flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl text-sm font-bold shadow-xl transition-all duration-300 ${(currentQuestion.required && !formData[currentQuestion.id])
+                                    className={`flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs font-bold shadow-lg transition-all duration-300 ${(currentQuestion.required && !formData[currentQuestion.id])
                                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
                                         : 'bg-blue-600 text-white shadow-blue-200 hover:shadow-blue-300 hover:-translate-y-0.5 active:translate-y-0'
                                         }`}
                                 >
                                     <span>{status === 'submitting' ? 'Saving...' : step === questions.length - 1 ? 'Complete' : 'Continue'}</span>
-                                    {step < questions.length - 1 && <ChevronRight size={18} />}
+                                    {step < questions.length - 1 && <ChevronRight size={16} />}
                                 </button>
                             </div>
                         </motion.div>
