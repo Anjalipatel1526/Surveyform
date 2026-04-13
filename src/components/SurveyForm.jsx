@@ -5,10 +5,13 @@ const SurveyForm = () => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        dob: '',
         phone: '',
         college: '',
         department: '',
         year: '',
+        linkedin: '',
+        portfolio: '',
         experience: '5',
         relevance: '5',
         satisfaction: '5',
@@ -50,7 +53,8 @@ const SurveyForm = () => {
             setStatus('success');
             alert('Thank you! Your survey response has been recorded.');
             setFormData({
-                name: '', email: '', phone: '', college: '', department: '', year: '',
+                name: '', email: '', dob: '', phone: '', college: '', department: '', year: '',
+                linkedin: '', portfolio: '',
                 experience: '5', relevance: '5', satisfaction: '5', recommend: 'Yes',
                 valuable_learned: '', improvement_suggestions: ''
             });
@@ -105,6 +109,17 @@ const SurveyForm = () => {
                                 />
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Date of Birth</label>
+                                <input
+                                    required
+                                    type="date"
+                                    name="dob"
+                                    value={formData.dob}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                                />
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Phone Number</label>
                                 <input
                                     required
@@ -114,6 +129,28 @@ const SurveyForm = () => {
                                     onChange={handleChange}
                                     className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
                                     placeholder="+91 12345 67890"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn Profile (Optional)</label>
+                                <input
+                                    type="url"
+                                    name="linkedin"
+                                    value={formData.linkedin}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                                    placeholder="https://linkedin.com/in/..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Portfolio Link (Optional)</label>
+                                <input
+                                    type="url"
+                                    name="portfolio"
+                                    value={formData.portfolio}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                                    placeholder="https://portfolio.com"
                                 />
                             </div>
                             <div>

@@ -57,4 +57,4 @@ function doGet(e) {
 
 ### Google Sheet Headers
 Make sure your Google Sheet has the following headers in the first row (A1, B1, C1, etc.):
-`timestamp`, `name`, `email`, `phone`, `college`, `department`, `year`, `experience`, `relevance`, `satisfaction`, `recommend`, `valuable_learned`, `improvement_suggestions`
+`timestamp`, `name`, `email`, `dob`, `phone`, `college`, `department`, `year`, `linkedin`, `portfolio`, `experience`, `relevance`, `satisfaction`, `recommend`, `valuable_learned`, `improvement_suggestions`
