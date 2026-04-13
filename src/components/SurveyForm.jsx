@@ -343,10 +343,6 @@ const SurveyForm = () => {
                     </AnimatePresence>
                 </div>
 
-                {/* Footer Info */}
-                <p className="mt-12 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center">
-                    Powered by Student Analytics Core • Survey v2.0
-                </p>
             </div>
         </div>
     );
