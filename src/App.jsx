@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import SurveyForm from './components/SurveyForm'
 import AdminDashboard from './components/AdminDashboard'
 import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 function App() {
   const [view, setView] = useState('survey') // 'survey' or 'admin'
@@ -31,6 +32,7 @@ function App() {
         </>
       )}
       <Analytics />
+      <SpeedInsights />
     </main>
   )
 }
