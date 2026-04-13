@@ -7,9 +7,7 @@ import {
     Globe, Cpu, LayoutGrid, Zap, Clock, Target, ShieldCheck, Sparkles,
     Settings2, Scale, FileText, Award, Eye, Compass, Rocket
 } from "lucide-react";
-
-// Update this with your actual Google Apps Script URL
-const GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+import { supabase } from '../supabaseClient';
 
 const questions = [
     { id: 'name', label: 'Full Name', type: 'text', required: true, icon: User },
@@ -94,10 +92,18 @@ const SurveyForm = () => {
     const handleSubmit = async () => {
         setStatus('submitting');
         try {
-            await fetch(GAS_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
+            const { error } = await supabase
+                .from('survey_responses')
+                .insert([formData]);
+
+            if (error) throw error;
+
             setStatus('success');
             setTimeout(() => { setStatus('idle'); setStep(0); }, 3000);
-        } catch { setStatus('error'); }
+        } catch (error) {
+            console.error('Submission error:', error);
+            setStatus('error');
+        }
     };
 
     if (status === 'success') {
