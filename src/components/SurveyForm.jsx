@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     User, Mail, Calendar, Phone, Link, Briefcase,
     Building2, GraduationCap, BookOpen, Star, BarChart3,
-    Heart, ThumbsUp, Lightbulb, MessageSquare, ChevronRight, ChevronLeft
+    Heart, ThumbsUp, Lightbulb, MessageSquare, ChevronRight, ChevronLeft,
+    Globe, Cpu, LayoutGrid, Zap, Clock, Target, ShieldCheck, Sparkles
 } from "lucide-react";
 
 // Update this with your actual Google Apps Script URL
@@ -19,6 +20,16 @@ const questions = [
     { id: 'college', label: 'College / University', type: 'text', required: true, icon: Building2 },
     { id: 'department', label: 'Department / Branch', type: 'text', required: true, icon: GraduationCap },
     { id: 'year', label: 'Year of Study', type: 'select', options: ['1st Year', '2nd Year', '3rd Year', '4th Year'], required: true, icon: BookOpen },
+    { id: 'ai_understanding', label: 'What is your overall understanding of Artificial Intelligence (AI)?', type: 'radio', options: ['Very High', 'High', 'Moderate', 'low', 'No Understanding'], required: true, icon: BookOpen },
+    { id: 'ai_role', label: 'How do you perceive the role of AI in today’s world?', type: 'radio', options: ['Extremely Important', 'Important', 'Neutral', 'Slightly Important', 'Not Important'], required: true, icon: Globe },
+    { id: 'ai_career_impact', label: 'In your opinion, how will AI impact future careers?', type: 'radio', options: ['Create more opportunities', 'Replace many jobs', 'Both create and replace jobs', 'No significant impact', 'Unsure'], required: true, icon: Briefcase },
+    { id: 'ai_usage', label: 'Are you currently using any AI-based tools or applications?', type: 'radio', options: ['Yes', 'No'], required: true, icon: Cpu },
+    { id: 'ai_tools_familiar', label: 'Which AI tools are you familiar with?', type: 'radio', options: ['ChatGPT', 'Google Gemini', 'Microsoft Copilot', 'Midjourney / DALL·E', 'Canva AI', 'Grammarly', 'Not familiar with any AI tools'], required: true, icon: LayoutGrid },
+    { id: 'ai_tool_frequent', label: 'Which AI tool do you use most frequently?', type: 'radio', options: ['ChatGPT', 'Google Gemini', 'Microsoft Copilot', 'Canva AI', 'Other'], required: true, icon: Zap },
+    { id: 'ai_usage_frequency', label: 'How often do you use AI tools?', type: 'radio', options: ['Daily', 'Weekly', 'Occasionally', 'Rarely', 'Never'], required: true, icon: Clock },
+    { id: 'ai_purposes', label: 'For what purposes do you primarily use AI tools?', type: 'radio', options: ['Academic studies', 'Coding / Programming', 'Content creation', 'Design & Creativity', 'Research', 'Personal productivity', 'Entertainment'], required: true, icon: Target },
+    { id: 'ai_reliance_area', label: 'Which area do you rely on AI the most?', type: 'radio', options: ['Learning concepts', 'Writing / Documentation', 'Problem solving', 'Coding assistance', 'Design & media generation'], required: true, icon: ShieldCheck },
+    { id: 'ai_effectiveness', label: 'How effective do you find AI tools in solving your problems?', type: 'radio', options: ['Very Effective', 'Effective', 'Neutral', 'Ineffective', 'Very Ineffective'], required: true, icon: Sparkles },
     { id: 'experience', label: 'Workshop Experience', type: 'range', min: 1, max: 5, required: true, icon: Star },
     { id: 'relevance', label: 'Relevance to Curriculum', type: 'range', min: 1, max: 5, required: true, icon: BarChart3 },
     { id: 'satisfaction', label: 'Content Satisfaction', type: 'range', min: 1, max: 5, required: true, icon: Heart },
@@ -30,6 +41,8 @@ const questions = [
 const SurveyForm = () => {
     const [formData, setFormData] = useState({
         name: '', email: '', dob: '', phone: '', college: '', department: '', year: '', linkedin: '', interest: '',
+        ai_understanding: '', ai_role: '', ai_career_impact: '', ai_usage: '', ai_tools_familiar: '', ai_tool_frequent: '',
+        ai_tool_frequent_other: '', ai_usage_frequency: '', ai_purposes: '', ai_reliance_area: '', ai_effectiveness: '',
         experience: 3, relevance: 3, satisfaction: 3, recommend: 'Yes', valuable_learned: '', improvement_suggestions: ''
     });
     const [status, setStatus] = useState('idle');
@@ -40,6 +53,12 @@ const SurveyForm = () => {
 
     const nextStep = () => {
         const q = questions[step];
+
+        // Validation for "Other" field in Question 15
+        if (q.id === 'ai_tool_frequent' && formData.ai_tool_frequent === 'Other' && !formData.ai_tool_frequent_other) {
+            return;
+        }
+
         if (q.required && !formData[q.id]) {
             return;
         }
@@ -157,19 +176,41 @@ const SurveyForm = () => {
                             {/* Input Sections */}
                             <div className="flex-grow">
                                 {currentQuestion.type === 'radio' ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {currentQuestion.options.map(opt => (
-                                            <button
-                                                key={opt}
-                                                onClick={() => { setFormData(p => ({ ...p, [currentQuestion.id]: opt })); setTimeout(nextStep, 300); }}
-                                                className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-semibold transition-all duration-300 border ${formData[currentQuestion.id] === opt
-                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-[1.02]'
-                                                    : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.01]'
-                                                    }`}
+                                    <div className="flex flex-col gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {currentQuestion.options.map(opt => (
+                                                <button
+                                                    key={opt}
+                                                    onClick={() => {
+                                                        setFormData(p => ({ ...p, [currentQuestion.id]: opt }));
+                                                        if (opt !== 'Other') setTimeout(nextStep, 300);
+                                                    }}
+                                                    className={`w-full text-left px-5 py-4 rounded-2xl text-sm font-semibold transition-all duration-300 border ${formData[currentQuestion.id] === opt
+                                                        ? 'bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-200 scale-[1.02]'
+                                                        : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 hover:border-slate-200 hover:scale-[1.01]'
+                                                        }`}
+                                                >
+                                                    {opt}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {currentQuestion.id === 'ai_tool_frequent' && formData.ai_tool_frequent === 'Other' && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="mt-2"
                                             >
-                                                {opt}
-                                            </button>
-                                        ))}
+                                                <input
+                                                    type="text"
+                                                    placeholder="Specify the tool name..."
+                                                    name="ai_tool_frequent_other"
+                                                    value={formData.ai_tool_frequent_other}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none shadow-inner"
+                                                    autoFocus
+                                                />
+                                            </motion.div>
+                                        )}
                                     </div>
                                 ) : currentQuestion.id === 'year' ? (
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
