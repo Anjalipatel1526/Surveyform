@@ -28,21 +28,14 @@ const pages = [
         questions: [
             { id: 'ai_understanding', label: 'What is your overall understanding of Artificial Intelligence (AI)?', type: 'radio', options: ['Very High', 'High', 'Moderate', 'low', 'No Understanding'], required: true, icon: BookOpen },
             { id: 'ai_career_impact', label: 'In your opinion, how will AI impact future careers?', type: 'radio', options: ['Create more opportunities', 'Replace many jobs', 'Both create and replace jobs', 'No significant impact', 'Unsure'], required: true, icon: Briefcase },
-            { id: 'ai_tool_frequent', label: 'Which AI tool do you use most frequently?', type: 'radio', options: ['ChatGPT', 'Google Gemini', 'Microsoft Copilot', 'Canva AI', 'Other', "I don't use any"], required: true, icon: Zap },
+            {
+                id: 'ai_tool_frequent', label: 'Which AI tool do you use most frequently?', type: 'radio', options: ['Claude', 'ChatGPT', 'Gemini Copilot', 'Microsoft Copilot'], required: true, icon: Zap
+            },
             { id: 'ai_usage_frequency', label: 'How often do you use AI tools?', type: 'radio', options: ['Daily', 'Weekly', 'Occasionally', 'Rarely', 'Never'], required: true, icon: Clock },
             { id: 'ai_purposes', label: 'For what purposes do you primarily use AI tools?', type: 'radio', options: ['Academic studies', 'Coding / Programming', 'Content creation', 'Design & Creativity', 'Research', 'Personal productivity', 'Entertainment'], required: true, icon: Target },
             { id: 'ai_effectiveness', label: 'How effective do you find AI tools in solving your problems?', type: 'radio', options: ['Very Effective', 'Effective', 'Neutral', 'Ineffective', 'Very Ineffective'], required: true, icon: Sparkles },
             { id: 'ai_prompt_engineering_awareness', label: 'Are you aware of the concept of “Prompt Engineering”?', type: 'radio', options: ['Yes, and I use it', 'Aware but not confident', 'Heard of it', 'Not aware'], required: true, icon: Settings2 },
             { id: 'ai_ethics_awareness', label: 'Are you aware of ethical concerns related to AI (data privacy, bias, misuse)?', type: 'radio', options: ['Very Aware', 'Somewhat Aware', 'Heard about it', 'Not Aware'], required: true, icon: Scale },
-        ]
-    },
-    {
-        title: "Workshop Feedback",
-        icon: Star,
-        questions: [
-            { id: 'ai_previous_workshops', label: 'Have you attended any AI-related workshops or courses before?', type: 'radio', options: ['Yes', 'No'], required: true, icon: Award },
-            { id: 'experience', label: 'Overall Workshop Rating', type: 'range', min: 1, max: 5, required: true, icon: Star },
-            { id: 'additional_feedback', label: 'Any additional feedback or key takeaways?', type: 'textarea', required: false, icon: MessageSquare },
         ]
     }
 ];
@@ -55,7 +48,7 @@ const SurveyForm = () => {
         ai_prompt_engineering_awareness: '', ai_ethics_awareness: '', ai_previous_workshops: '',
         experience: 3, additional_feedback: ''
     });
-    
+
     const [status, setStatus] = useState('idle');
     const [step, setStep] = useState(0); // 0, 1, 2 representing the pages
     const [direction, setDirection] = useState(1);
@@ -76,13 +69,13 @@ const SurveyForm = () => {
     const nextStep = () => {
         const currentPage = pages[step];
         const newErrors = {};
-        
+
         // Validate all questions on the current page
         currentPage.questions.forEach(q => {
             if (q.required && !formData[q.id]) {
                 newErrors[q.id] = 'This field is required';
             }
-            
+
             if (q.id === 'email' && formData.email) {
                 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
                 if (!gmailRegex.test(formData.email)) {
@@ -375,12 +368,7 @@ const SurveyForm = () => {
                                 })}
                             </div>
 
-                            {/* Global Error Banner (if scrolled past individual errors) */}
-                            {Object.keys(errors).length > 0 && (
-                                <div className="mt-8 p-3 bg-red-50 border border-red-100 rounded-xl text-center">
-                                    <p className="text-xs font-bold text-red-500">Please fix the errors above before continuing.</p>
-                                </div>
-                            )}
+
 
                             {/* Buttons Area */}
                             <div className="mt-10 pt-8 border-t border-slate-100 flex items-center justify-between gap-4 sticky bottom-0 bg-white z-10 py-4">
